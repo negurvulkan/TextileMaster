@@ -1,4 +1,5 @@
-import { api, fetchOpenProjects } from './api.js';
+import { api } from "./api.js";
+import { populateProjectDropdown } from "./admin_motifs.js";
 import { setAlert } from './ui.js';
 
 const resources = [
@@ -82,6 +83,9 @@ function addHandlers(res) {
             await api.remove(res.key, btn.dataset.id);
             setAlert('Gelöscht', 'success');
             loadResource(res);
+            if (res.key === 'projects') {
+                refreshMotifProjectDropdowns();
+            }
         });
     });
 }
@@ -90,6 +94,11 @@ async function openForm(res, item = {}) {
     const container = document.getElementById(`${res.key}-form-container`);
     container.innerHTML = await buildForm(res, item);
     container.classList.remove('d-none');
+
+    if (res.key === 'motifs') {
+        const select = container.querySelector('select[name="project_id"]');
+        populateProjectDropdown(select, item.project_id);
+    }
 
     if (res.key === 'projects') {
         flatpickr(container.querySelector('input[name="start_date"]'), { enableTime: true, dateFormat: 'Y-m-d H:i' });
@@ -117,6 +126,9 @@ async function openForm(res, item = {}) {
             setAlert('Gespeichert', 'success');
             container.classList.add('d-none');
             loadResource(res);
+            if (res.key === 'projects') {
+                refreshMotifProjectDropdowns();
+            }
         } else {
             setAlert('Fehler beim Speichern', 'danger');
         }
@@ -130,9 +142,7 @@ async function buildForm(res, item) {
     let fieldsHtml = '';
     for (const f of res.fields) {
         if (res.key === 'motifs' && f === 'project_id') {
-            const projects = await fetchOpenProjects() || [];
-            const options = projects.map(p => `<option value="${p.id}" ${item.project_id==p.id?'selected':''}>${p.name}</option>`).join('');
-            fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><select class="form-select" name="project_id">${options}</select></div>`;
+            fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><select class="form-select" name="project_id"></select></div>`;
         } else if (res.key === 'projects' && (f === 'start_date' || f === 'end_date')) {
             fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><input class="form-control date-input" name="${f}" value="${item[f] ?? ''}"></div>`;
         } else {
@@ -142,4 +152,11 @@ async function buildForm(res, item) {
     return `<form class="border p-3 bg-light">${fieldsHtml}<button type="submit" class="btn btn-primary">Speichern</button>
         <button type="button" class="btn btn-secondary ms-2" data-action="cancel">Abbrechen</button>
     </form>`;
+}
+
+function refreshMotifProjectDropdowns() {
+    const selects = document.querySelectorAll('#motifs-form-container select[name="project_id"]');
+    selects.forEach(sel => {
+        populateProjectDropdown(sel, sel.value);
+    });
 }
