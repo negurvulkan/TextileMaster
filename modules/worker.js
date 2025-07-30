@@ -12,7 +12,7 @@ export async function initWorker() {
     renderHeader();
     await buildSelectors();
     setupButtons();
-    renderHistory();
+    renderProgressBars();
 }
 
 function renderHeader() {
@@ -92,13 +92,27 @@ function addQty(qty) {
     progress.saveEntry(entry);
     gamify.handleProgress(qty);
     updateXpBar();
-    renderHistory();
+    renderProgressBars();
 }
 
-function renderHistory() {
+function renderProgressBars() {
     const list = progress.getEntries();
-    const tbody = document.getElementById('history-body');
-    tbody.innerHTML = list.slice(-10).reverse().map(e => `<tr><td>${e.timestamp}</td><td>${e.quantity}</td></tr>`).join('');
+    const container = document.getElementById('progress-bars');
+    container.innerHTML = '';
+    const groups = {};
+    list.forEach(e => {
+        const key = `${e.product_id}-${e.product_size_id}-${e.step_id}`;
+        groups[key] = (groups[key] || 0) + e.quantity;
+    });
+    Object.entries(groups).forEach(([key, qty]) => {
+        const [pid, sid, stepId] = key.split('-');
+        const label = `P${pid} S${sid} Step${stepId}`;
+        const percent = Math.min(100, Math.abs(qty) * 10);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-2';
+        wrapper.innerHTML = `<div>${label}: ${qty}</div><div class="progress"><div class="progress-bar" role="progressbar" style="width:${percent}%"></div></div>`;
+        container.appendChild(wrapper);
+    });
 }
 
 function updateXpBar() {
