@@ -1,21 +1,41 @@
 import { loginUser } from './api.js';
 import { setUser, getUser, logoutUser, isAdmin } from './state.js';
-import { showLoginForm, showDashboard, setAlert, showAdminPanel, hideAdminPanel } from './ui.js';
+import { showLoginForm, showDashboard, hideDashboard, setAlert, showAdminPanel, hideAdminPanel, showAdminToggleButton, hideAdminToggleButton } from './ui.js';
 import { initAdmin } from './admin.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('admin-toggle-btn');
+
     const user = getUser();
     if (user) {
         showDashboard();
         if (isAdmin()) {
-            showAdminPanel();
-            initAdmin();
+            hideAdminPanel();
+            showAdminToggleButton('Adminbereich');
         } else {
             hideAdminPanel();
+            hideAdminToggleButton();
         }
     } else {
         showLoginForm();
         hideAdminPanel();
+        hideAdminToggleButton();
+    }
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const adminVisible = !document.getElementById('admin-container').classList.contains('d-none');
+            if (adminVisible) {
+                hideAdminPanel();
+                showDashboard();
+                showAdminToggleButton('Adminbereich');
+            } else {
+                initAdmin();
+                showAdminPanel();
+                hideDashboard();
+                showAdminToggleButton('Benutzeransicht');
+            }
+        });
     }
 
     const btn = document.getElementById('login-btn');
@@ -30,10 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
             setAlert('Login erfolgreich', 'success');
             showDashboard();
             if (isAdmin()) {
-                showAdminPanel();
-                initAdmin();
+                hideAdminPanel();
+                showAdminToggleButton('Adminbereich');
             } else {
                 hideAdminPanel();
+                hideAdminToggleButton();
             }
         } else {
             setAlert('Login fehlgeschlagen', 'danger');

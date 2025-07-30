@@ -8,12 +8,31 @@ export function showDashboard() {
     document.getElementById('dashboard-container').classList.remove('d-none');
 }
 
+export function hideDashboard() {
+    document.getElementById('dashboard-container').classList.add('d-none');
+}
+
 export function showAdminPanel() {
     document.getElementById('admin-container').classList.remove('d-none');
 }
 
 export function hideAdminPanel() {
     document.getElementById('admin-container').classList.add('d-none');
+}
+
+export function showAdminToggleButton(label = 'Adminbereich') {
+    const btn = document.getElementById('admin-toggle-btn');
+    if (btn) {
+        btn.textContent = label;
+        btn.classList.remove('d-none');
+    }
+}
+
+export function hideAdminToggleButton() {
+    const btn = document.getElementById('admin-toggle-btn');
+    if (btn) {
+        btn.classList.add('d-none');
+    }
 }
 
 export function setAlert(message, type = 'danger') {
