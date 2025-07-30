@@ -150,7 +150,8 @@ async function openForm(res, item = {}) {
             loadResource(res);
             refreshDependentDropdowns(res.key);
         } else {
-            setAlert('Fehler beim Speichern', 'danger');
+            const msg = result && result.error ? result.error : 'Fehler beim Speichern';
+            setAlert(msg, 'danger');
         }
     });
     container.querySelector('[data-action="cancel"]').addEventListener('click', () => {

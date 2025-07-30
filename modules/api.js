@@ -29,10 +29,16 @@ async function apiRequest(resource, method = 'GET', data = null, id = null) {
         options.body = JSON.stringify(data);
     }
     const resp = await fetch(url, options);
-    if (!resp.ok) {
-        return null;
+    let json = null;
+    try {
+        json = await resp.json();
+    } catch (e) {
+        /* ignore */
     }
-    return resp.json();
+    if (!resp.ok) {
+        return json || { error: `HTTP ${resp.status}` };
+    }
+    return json;
 }
 
 export const api = {
