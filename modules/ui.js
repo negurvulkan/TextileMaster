@@ -42,7 +42,15 @@ export function setAlert(message, type = 'danger') {
 
 export async function populateDropdown(endpointFn, selectEl, selectedId = null, labelField = 'name') {
     if (!selectEl) return;
-    const data = await endpointFn() || [];
+    let data = [];
+    try {
+        const res = await endpointFn();
+        if (Array.isArray(res)) {
+            data = res;
+        }
+    } catch (e) {
+        /* ignore */
+    }
     selectEl.innerHTML = '';
     if (data.length === 0) {
         const opt = document.createElement('option');

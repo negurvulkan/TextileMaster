@@ -35,7 +35,8 @@ async function buildSelectors() {
 
     projSel.addEventListener('change', async () => {
         setSelection({ project_id: projSel.value });
-        const motifs = (await api.getAll('motifs')) || [];
+        const motifsRes = await api.getAll('motifs');
+        const motifs = Array.isArray(motifsRes) ? motifsRes : [];
         const list = motifs.filter(m => m.project_id == projSel.value);
         motifSel.innerHTML = '';
         list.forEach(m => {
@@ -46,7 +47,8 @@ async function buildSelectors() {
 
     motifSel.addEventListener('change', async () => {
         setSelection({ motif_id: motifSel.value });
-        const products = (await api.getAll('products')) || [];
+        const prodRes = await api.getAll('products');
+        const products = Array.isArray(prodRes) ? prodRes : [];
         const list = products.filter(p => p.motif_id == motifSel.value);
         productSel.innerHTML = '';
         list.forEach(p => productSel.appendChild(new Option(p.product_type, p.id)));
@@ -55,7 +57,8 @@ async function buildSelectors() {
 
     productSel.addEventListener('change', async () => {
         setSelection({ product_id: productSel.value });
-        const sizes = (await api.getAll('product_sizes')) || [];
+        const sizesRes = await api.getAll('product_sizes');
+        const sizes = Array.isArray(sizesRes) ? sizesRes : [];
         const list = sizes.filter(s => s.product_id == productSel.value);
         sizeSel.innerHTML = '';
         list.forEach(s => sizeSel.appendChild(new Option(s.size_label, s.id)));
@@ -64,7 +67,8 @@ async function buildSelectors() {
 
     sizeSel.addEventListener('change', async () => {
         setSelection({ size_id: sizeSel.value });
-        const steps = (await api.getAll('steps')) || [];
+        const stepsRes = await api.getAll('steps');
+        const steps = Array.isArray(stepsRes) ? stepsRes : [];
         stepSel.innerHTML = '';
         steps.forEach(st => stepSel.appendChild(new Option(st.name, st.id)));
         stepSel.dispatchEvent(new Event('change'));

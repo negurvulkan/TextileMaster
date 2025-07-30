@@ -28,7 +28,12 @@ async function apiRequest(resource, method = 'GET', data = null, id = null) {
     if (data) {
         options.body = JSON.stringify(data);
     }
-    const resp = await fetch(url, options);
+    let resp;
+    try {
+        resp = await fetch(url, options);
+    } catch (err) {
+        return { error: err.message };
+    }
     let json = null;
     try {
         json = await resp.json();
