@@ -1,8 +1,7 @@
 // Worker mode interface and logic
 import { api } from './api.js';
 import { populateDropdown, setAlert } from './ui.js';
-import { getUser } from './state.js';
-import * as state from './state.js';
+import { getUser, setSelection, getSelection, getXp } from './state.js';
 import * as gamify from './gamify.js';
 import * as progress from './progress.js';
 
@@ -35,7 +34,7 @@ async function buildSelectors() {
     await populateDropdown(() => api.getAll('projects'), projSel);
 
     projSel.addEventListener('change', async () => {
-        state.setSelection({ project_id: projSel.value });
+        setSelection({ project_id: projSel.value });
         const motifs = (await api.getAll('motifs')) || [];
         const list = motifs.filter(m => m.project_id == projSel.value);
         motifSel.innerHTML = '';
@@ -46,7 +45,7 @@ async function buildSelectors() {
     });
 
     motifSel.addEventListener('change', async () => {
-        state.setSelection({ motif_id: motifSel.value });
+        setSelection({ motif_id: motifSel.value });
         const products = (await api.getAll('products')) || [];
         const list = products.filter(p => p.motif_id == motifSel.value);
         productSel.innerHTML = '';
@@ -55,7 +54,7 @@ async function buildSelectors() {
     });
 
     productSel.addEventListener('change', async () => {
-        state.setSelection({ product_id: productSel.value });
+        setSelection({ product_id: productSel.value });
         const sizes = (await api.getAll('product_sizes')) || [];
         const list = sizes.filter(s => s.product_id == productSel.value);
         sizeSel.innerHTML = '';
@@ -64,7 +63,7 @@ async function buildSelectors() {
     });
 
     sizeSel.addEventListener('change', async () => {
-        state.setSelection({ size_id: sizeSel.value });
+        setSelection({ size_id: sizeSel.value });
         const steps = (await api.getAll('steps')) || [];
         stepSel.innerHTML = '';
         steps.forEach(st => stepSel.appendChild(new Option(st.name, st.id)));
@@ -72,7 +71,7 @@ async function buildSelectors() {
     });
 
     stepSel.addEventListener('change', () => {
-        state.setSelection({ step_id: stepSel.value });
+        setSelection({ step_id: stepSel.value });
     });
 
     projSel.dispatchEvent(new Event('change'));
@@ -84,7 +83,7 @@ function setupButtons() {
 }
 
 function addQty(qty) {
-    const sel = state.getSelection();
+    const sel = getSelection();
     if (!sel.step_id) {
         setAlert('Bitte Schritt auswählen', 'danger');
         return;
@@ -103,7 +102,7 @@ function renderHistory() {
 }
 
 function updateXpBar() {
-    const xp = state.getXp();
+    const xp = getXp();
     const lvl = gamify.getLevel();
     document.getElementById('xp-value').textContent = xp;
     document.getElementById('level-value').textContent = lvl;
