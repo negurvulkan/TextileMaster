@@ -1,4 +1,4 @@
-import { api } from './api.js';
+import { api, fetchOpenProjects } from './api.js';
 import { setAlert } from './ui.js';
 
 const resources = [
@@ -86,13 +86,24 @@ function addHandlers(res) {
     });
 }
 
-function openForm(res, item = {}) {
+async function openForm(res, item = {}) {
     const container = document.getElementById(`${res.key}-form-container`);
-    container.innerHTML = buildForm(res, item);
+    container.innerHTML = await buildForm(res, item);
     container.classList.remove('d-none');
+
+    if (res.key === 'projects') {
+        flatpickr(container.querySelector('input[name="start_date"]'), { enableTime: true, dateFormat: 'Y-m-d H:i' });
+        flatpickr(container.querySelector('input[name="end_date"]'), { enableTime: true, dateFormat: 'Y-m-d H:i' });
+    }
+
     const form = container.querySelector('form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const nameInput = form.querySelector('input[name="name"]');
+        if (nameInput && !nameInput.value.trim()) {
+            setAlert('Name darf nicht leer sein', 'danger');
+            return;
+        }
         const formData = new FormData(form);
         const data = {};
         formData.forEach((v,k)=>{data[k]=v});
@@ -115,10 +126,20 @@ function openForm(res, item = {}) {
     });
 }
 
-function buildForm(res, item) {
-    return `<form class="border p-3 bg-light">
-        ${res.fields.map(f => `<div class="mb-2"><label class="form-label">${f}</label><input class="form-control" name="${f}" value="${item[f] ?? ''}"></div>`).join('')}
-        <button type="submit" class="btn btn-primary">Speichern</button>
+async function buildForm(res, item) {
+    let fieldsHtml = '';
+    for (const f of res.fields) {
+        if (res.key === 'motifs' && f === 'project_id') {
+            const projects = await fetchOpenProjects() || [];
+            const options = projects.map(p => `<option value="${p.id}" ${item.project_id==p.id?'selected':''}>${p.name}</option>`).join('');
+            fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><select class="form-select" name="project_id">${options}</select></div>`;
+        } else if (res.key === 'projects' && (f === 'start_date' || f === 'end_date')) {
+            fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><input class="form-control date-input" name="${f}" value="${item[f] ?? ''}"></div>`;
+        } else {
+            fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><input class="form-control" name="${f}" value="${item[f] ?? ''}"></div>`;
+        }
+    }
+    return `<form class="border p-3 bg-light">${fieldsHtml}<button type="submit" class="btn btn-primary">Speichern</button>
         <button type="button" class="btn btn-secondary ms-2" data-action="cancel">Abbrechen</button>
     </form>`;
 }

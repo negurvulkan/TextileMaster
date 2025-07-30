@@ -18,6 +18,10 @@ export async function loginUser(username, password) {
     }
 }
 
+export async function fetchOpenProjects() {
+    return apiRequest('projects');
+}
+
 async function apiRequest(resource, method = 'GET', data = null, id = null) {
     const url = id ? `api/${resource}.php?id=${id}` : `api/${resource}.php`;
     const options = { method, headers: { 'Content-Type': 'application/json' } };
