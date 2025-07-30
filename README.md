@@ -1,82 +1,99 @@
-# 🧵 Production Tracker 2.0
+# Production Tracker v2.0 🧵📊
 
-A web-based tool for organizing and managing production projects within teams — fast, offline-capable, modular, and with gamification to break the monotony.
+A modular, offline-first web application for tracking and managing textile production projects. Designed for small to mid-sized teams working in garment refinement and decoration, it offers a clear interface, gamified motivation, and seamless offline-to-online synchronization.
 
-## 🚀 Features
+---
 
-- Manage multiple production projects with custom materials, sizes, and workflows
-- Track progress per user, task, and size
-- Fully offline-capable (localStorage or IndexedDB)
-- Syncs with a PHP backend when online
-- Authenticated admin functions
-- Optional gamification (levels, XP, challenges, rewards)
-- 100% Vanilla JS – no frameworks, no dependencies
+## 🔷 Purpose
 
-## 🏗️ Architecture
+Track production progress for textile jobs, broken down into:
+- Projects (e.g. “Müller Workwear 2025”)
+- Motif groups (e.g. “Logo STAFF”, “Back Print”)
+- Products (e.g. “T-Shirt Unisex Black”)
+- Sizes and quantities
+- Individual workflow steps (e.g. Pre-Treat, Print, Package)
+
+---
+
+## ⚙️ Architecture
 
 ### 🔻 Frontend
-
-- **Tech**: HTML, CSS, Vanilla JavaScript
-- **Modules**:
-  - `state.js` – Manages app state (local & synced)
-  - `ui.js` – Handles DOM rendering
-  - `tracker.js` – Progress tracking logic
-  - `sync.js` – Communication with backend
-  - `gamify.js` – Rewards, points, feedback
-- **Storage**: IndexedDB or localStorage
-- **PWA**: Works offline, persistent data
+- Vanilla JS (modular structure), HTML5, CSS3
+- Offline-first (using `localStorage` or IndexedDB)
+- Responsive UI
+- Gamification layer
+- Synchronizes with backend when online
 
 ### 🔺 Backend
+- PHP 8.x with MariaDB
+- RESTful API (e.g. `/api/sync.php`, `/api/projects.php`)
+- Optional user authentication and roles
+- Central data store for projects, products, progress
 
-- **Tech**: PHP 8+, MariaDB
-- **REST API**:
-  - `/projects`, `/progress`, `/users`, `/settings`, `/sync`
-- **Main tables**:
-  - `projects`, `project_steps`, `materials`, `sizes`
-  - `progress`, `users`, `settings`
-- **Features**:
-  - Authentication & roles
-  - Push/pull sync logic
-  - Admin management endpoints
+---
 
-## 📦 Setup & Usage
+## 🗃️ Data Model Overview
 
-1. **Frontend**:
-   - Open `index.html` in any modern browser
-   - Works offline immediately
+| Concept        | Description                                                                 |
+|----------------|-----------------------------------------------------------------------------|
+| Project        | Client orders, contains motif groups                                        |
+| Motif Group    | A design variant or decoration group                                        |
+| Product        | Apparel item with color, cut, etc.                                          |
+| Sizes & Qty    | Custom-defined per product (e.g. S:10, M:20, ...)                           |
+| Workflow Steps | Configurable per project (e.g. Pre-Treat Front, Print Back, ...)            |
+| Users & Roles  | Track who did what, optionally with role-based access                       |
+| Progress       | Quantity, step, timestamp, and user data logged                             |
 
-2. **Backend**:
-   - Set up PHP server with MariaDB
-   - Configure DB credentials in `.env` (or config file)
-   - Ensure `/api/` routes are publicly accessible
+---
 
-3. **Sync**:
-   - App detects online state
-   - Automatically syncs when connected
+## 🔄 Synchronization
 
-## 🔐 Authentication
+Offline-first with sync:
+- Local changes saved immediately
+- App checks for internet regularly
+- Sync when available (push/pull)
+- Conflict resolution via timestamps and user IDs
 
-- Simple login screen or user picker
-- Roles: `worker`, `admin`
-- Token or session-based access
+---
 
-## 🎮 Gamification (optional)
+## 🎮 Gamification Features
 
-- Toggle in app settings
-- Earn XP/coins for tasks
-- Challenges, badges, sounds
-- Hidden Easter eggs
-- Leaderboard support
+| Feature             | Description                                           |
+|---------------------|-------------------------------------------------------|
+| XP system           | Earn XP for completed work                            |
+| Levels & Titles     | Visual progress through tiers                         |
+| Mini-Challenges     | e.g. “Print 10 hoodies in 30 minutes”                 |
+| Combos              | Extra XP for error-free streaks                       |
+| Pop-ups & Sounds    | Celebratory audio & popups for milestones             |
+| Leaderboards        | Daily, weekly, and all-time rankings                  |
 
-## 📌 Roadmap
+---
 
-- [x] Project & progress tracking
-- [x] Offline mode + sync
-- [x] User system
-- [ ] Gamification features
-- [ ] Reporting & export
-- [ ] UI/UX refinement
+## 📐 UI Overview
 
-## 📃 License
+- **Header**: Project, time, sync status, user, XP bar
+- **Selector Panel**: Project → Motif → Product → Size → Step
+- **Progress Controls**: [+] and [–] for adjusting quantity
+- **Stats View**: Daily performance, total progress, status bars
+- **History Panel**: Log of recent entries
+- **Gamification Panel**: Active combo, challenge status, XP
 
-MIT – feel free to fork, remix, and improve.
+---
+
+## 🧰 Planned Extensions
+
+- Export as CSV or PDF
+- Admin panel for managing users and projects
+- QR code support for quick selection
+- Design uploads and print templates
+- WebDAV and USB backup support
+
+---
+
+## 💡 Technologies Used
+
+- Vanilla JavaScript
+- HTML5 & CSS3
+- PHP 8.x
+- MariaDB
+- IndexedDB / localStorage
