@@ -63,3 +63,11 @@ export async function populateDropdown(endpointFn, selectEl, selectedId = null, 
         selectEl.appendChild(opt);
     });
 }
+
+export function showWorkerContainer() {
+    document.getElementById('worker-container').classList.remove('d-none');
+}
+
+export function hideWorkerContainer() {
+    document.getElementById('worker-container').classList.add('d-none');
+}

@@ -1,7 +1,8 @@
 import { loginUser } from './api.js';
-import { setUser, getUser, logoutUser, isAdmin } from './state.js';
+import { setUser, getUser, isAdmin } from './state.js';
 import { showLoginForm, showDashboard, hideDashboard, setAlert, showAdminPanel, hideAdminPanel, showAdminToggleButton, hideAdminToggleButton } from './ui.js';
 import { initAdmin } from './admin.js';
+import { initWorker } from './worker.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = document.getElementById('admin-toggle-btn');
@@ -9,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = getUser();
     if (user) {
         showDashboard();
+        initWorker();
         if (isAdmin()) {
             hideAdminPanel();
             showAdminToggleButton('Adminbereich');
@@ -49,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setUser(data);
             setAlert('Login erfolgreich', 'success');
             showDashboard();
+            initWorker();
             if (isAdmin()) {
                 hideAdminPanel();
                 showAdminToggleButton('Adminbereich');
