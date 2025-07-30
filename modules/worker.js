@@ -38,10 +38,7 @@ async function buildSelectors() {
         const motifsRes = await api.getAll('motifs');
         const motifs = Array.isArray(motifsRes) ? motifsRes : [];
         const list = motifs.filter(m => m.project_id == projSel.value);
-        motifSel.innerHTML = '';
-        list.forEach(m => {
-            motifSel.appendChild(new Option(m.name, m.id));
-        });
+        await populateDropdown(() => Promise.resolve(list), motifSel, null, 'name');
         motifSel.dispatchEvent(new Event('change'));
     });
 
@@ -50,8 +47,7 @@ async function buildSelectors() {
         const prodRes = await api.getAll('products');
         const products = Array.isArray(prodRes) ? prodRes : [];
         const list = products.filter(p => p.motif_id == motifSel.value);
-        productSel.innerHTML = '';
-        list.forEach(p => productSel.appendChild(new Option(p.product_type, p.id)));
+        await populateDropdown(() => Promise.resolve(list), productSel, null, 'product_type');
         productSel.dispatchEvent(new Event('change'));
     });
 
@@ -60,8 +56,7 @@ async function buildSelectors() {
         const sizesRes = await api.getAll('product_sizes');
         const sizes = Array.isArray(sizesRes) ? sizesRes : [];
         const list = sizes.filter(s => s.product_id == productSel.value);
-        sizeSel.innerHTML = '';
-        list.forEach(s => sizeSel.appendChild(new Option(s.size_label, s.id)));
+        await populateDropdown(() => Promise.resolve(list), sizeSel, null, 'size_label');
         sizeSel.dispatchEvent(new Event('change'));
     });
 
@@ -69,8 +64,7 @@ async function buildSelectors() {
         setSelection({ size_id: sizeSel.value });
         const stepsRes = await api.getAll('steps');
         const steps = Array.isArray(stepsRes) ? stepsRes : [];
-        stepSel.innerHTML = '';
-        steps.forEach(st => stepSel.appendChild(new Option(st.name, st.id)));
+        await populateDropdown(() => Promise.resolve(steps), stepSel, null, 'name');
         stepSel.dispatchEvent(new Event('change'));
     });
 
