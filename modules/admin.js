@@ -1,6 +1,5 @@
 import { api } from "./api.js";
-import { populateProjectDropdown } from "./admin_motifs.js";
-import { setAlert } from './ui.js';
+import { setAlert, populateDropdown } from './ui.js';
 
 const resources = [
     { key: 'projects', label: 'Projekte', fields: ['name','description','start_date','end_date'] },
@@ -12,6 +11,30 @@ const resources = [
     { key: 'users', label: 'Nutzer', fields: ['username','role','password_hash','active'] },
     { key: 'machines', label: 'Maschinen', fields: ['name','machine_type','location','notes','last_used_at','updated_by','active'] }
 ];
+
+const fkMap = {
+    motifs: {
+        project_id: { resource: 'projects', endpoint: () => api.getAll('projects') }
+    },
+    products: {
+        motif_id: { resource: 'motifs', endpoint: () => api.getAll('motifs') }
+    },
+    product_sizes: {
+        product_id: { resource: 'products', endpoint: () => api.getAll('products'), labelField: 'product_type' }
+    },
+    project_steps: {
+        step_id: { resource: 'steps', endpoint: () => api.getAll('steps') },
+        project_id: { resource: 'projects', endpoint: () => api.getAll('projects') },
+        motif_id: { resource: 'motifs', endpoint: () => api.getAll('motifs') }
+    },
+    steps: {
+        created_by: { resource: 'users', endpoint: () => api.getAll('users'), labelField: 'username' },
+        updated_by: { resource: 'users', endpoint: () => api.getAll('users'), labelField: 'username' }
+    },
+    machines: {
+        updated_by: { resource: 'users', endpoint: () => api.getAll('users'), labelField: 'username' }
+    }
+};
 
 export function initAdmin() {
     const tabs = document.getElementById('admin-tabs');
@@ -83,9 +106,7 @@ function addHandlers(res) {
             await api.remove(res.key, btn.dataset.id);
             setAlert('Gelöscht', 'success');
             loadResource(res);
-            if (res.key === 'projects') {
-                refreshMotifProjectDropdowns();
-            }
+            refreshDependentDropdowns(res.key);
         });
     });
 }
@@ -95,14 +116,15 @@ async function openForm(res, item = {}) {
     container.innerHTML = await buildForm(res, item);
     container.classList.remove('d-none');
 
-    if (res.key === 'motifs') {
-        const select = container.querySelector('select[name="project_id"]');
-        populateProjectDropdown(select, item.project_id);
-    }
-
     if (res.key === 'projects') {
         flatpickr(container.querySelector('input[name="start_date"]'), { enableTime: true, dateFormat: 'Y-m-d H:i' });
         flatpickr(container.querySelector('input[name="end_date"]'), { enableTime: true, dateFormat: 'Y-m-d H:i' });
+    }
+
+    const fkCfg = fkMap[res.key] || {};
+    for (const [field, cfg] of Object.entries(fkCfg)) {
+        const select = container.querySelector(`select[name="${field}"]`);
+        populateDropdown(cfg.endpoint, select, item[field], cfg.labelField || 'name');
     }
 
     const form = container.querySelector('form');
@@ -126,9 +148,7 @@ async function openForm(res, item = {}) {
             setAlert('Gespeichert', 'success');
             container.classList.add('d-none');
             loadResource(res);
-            if (res.key === 'projects') {
-                refreshMotifProjectDropdowns();
-            }
+            refreshDependentDropdowns(res.key);
         } else {
             setAlert('Fehler beim Speichern', 'danger');
         }
@@ -140,9 +160,10 @@ async function openForm(res, item = {}) {
 
 async function buildForm(res, item) {
     let fieldsHtml = '';
+    const fkCfg = fkMap[res.key] || {};
     for (const f of res.fields) {
-        if (res.key === 'motifs' && f === 'project_id') {
-            fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><select class="form-select" name="project_id"></select></div>`;
+        if (fkCfg[f]) {
+            fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><select class="form-select" name="${f}"></select></div>`;
         } else if (res.key === 'projects' && (f === 'start_date' || f === 'end_date')) {
             fieldsHtml += `<div class="mb-2"><label class="form-label">${f}</label><input class="form-control date-input" name="${f}" value="${item[f] ?? ''}"></div>`;
         } else {
@@ -154,9 +175,15 @@ async function buildForm(res, item) {
     </form>`;
 }
 
-function refreshMotifProjectDropdowns() {
-    const selects = document.querySelectorAll('#motifs-form-container select[name="project_id"]');
-    selects.forEach(sel => {
-        populateProjectDropdown(sel, sel.value);
+
+function refreshDependentDropdowns(changedResource) {
+    Object.entries(fkMap).forEach(([resKey, fields]) => {
+        Object.entries(fields).forEach(([field, cfg]) => {
+            if (cfg.resource === changedResource) {
+                document.querySelectorAll(`#${resKey}-form-container select[name="${field}"]`).forEach(sel => {
+                    populateDropdown(cfg.endpoint, sel, sel.value, cfg.labelField || 'name');
+                });
+            }
+        });
     });
 }
