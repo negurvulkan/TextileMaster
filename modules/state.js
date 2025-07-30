@@ -12,3 +12,8 @@ export function getUser() {
 export function logoutUser() {
     localStorage.removeItem(USER_KEY);
 }
+
+export function isAdmin() {
+    const user = getUser();
+    return user && user.role === 'admin';
+}

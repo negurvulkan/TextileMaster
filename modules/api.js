@@ -17,3 +17,23 @@ export async function loginUser(username, password) {
         return null;
     }
 }
+
+async function apiRequest(resource, method = 'GET', data = null, id = null) {
+    const url = id ? `api/${resource}.php?id=${id}` : `api/${resource}.php`;
+    const options = { method, headers: { 'Content-Type': 'application/json' } };
+    if (data) {
+        options.body = JSON.stringify(data);
+    }
+    const resp = await fetch(url, options);
+    if (!resp.ok) {
+        return null;
+    }
+    return resp.json();
+}
+
+export const api = {
+    getAll: (res) => apiRequest(res),
+    create: (res, data) => apiRequest(res, 'POST', data),
+    update: (res, id, data) => apiRequest(res, 'PUT', data, id),
+    remove: (res, id) => apiRequest(res, 'DELETE', null, id)
+};

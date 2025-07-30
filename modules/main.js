@@ -1,13 +1,21 @@
 import { loginUser } from './api.js';
-import { setUser, getUser, logoutUser } from './state.js';
-import { showLoginForm, showDashboard, setAlert } from './ui.js';
+import { setUser, getUser, logoutUser, isAdmin } from './state.js';
+import { showLoginForm, showDashboard, setAlert, showAdminPanel, hideAdminPanel } from './ui.js';
+import { initAdmin } from './admin.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const user = getUser();
     if (user) {
         showDashboard();
+        if (isAdmin()) {
+            showAdminPanel();
+            initAdmin();
+        } else {
+            hideAdminPanel();
+        }
     } else {
         showLoginForm();
+        hideAdminPanel();
     }
 
     const btn = document.getElementById('login-btn');
@@ -21,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
             setUser(data);
             setAlert('Login erfolgreich', 'success');
             showDashboard();
+            if (isAdmin()) {
+                showAdminPanel();
+                initAdmin();
+            } else {
+                hideAdminPanel();
+            }
         } else {
             setAlert('Login fehlgeschlagen', 'danger');
         }
